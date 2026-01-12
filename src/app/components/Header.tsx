@@ -1,5 +1,5 @@
 import { Waves } from 'lucide-react';
-import datawaveLogo from 'figma:asset/b587543dab8420476eba6debd586d3a4f393751c.png';
+import datawaveLogo from '../../assets/b587543dab8420476eba6debd586d3a4f393751c.png';
 
 export function Header() {
   const scrollToSection = (id: string) => {

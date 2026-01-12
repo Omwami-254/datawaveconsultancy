@@ -1,6 +1,6 @@
 import { Mail, Users } from 'lucide-react';
-import duncanPhoto from 'figma:asset/bce01225830dbf22910498b30f6fcd64d5bb7ba4.png';
-import michaelPhoto from 'figma:asset/102dd554a8f10f0d66279a677b8a5c2edbac92d1.png';
+import duncanPhoto from '../../assets/bce01225830dbf22910498b30f6fcd64d5bb7ba4.png';
+import michaelPhoto from '../../assets/102dd554a8f10f0d66279a677b8a5c2edbac92d1.png';
 
 const leaders = [
   {
