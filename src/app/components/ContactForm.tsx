@@ -12,7 +12,15 @@ export function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
+    
+    // Send form data to info@datawaveconsultancy.com
+    const mailtoLink = `mailto:info@datawaveconsultancy.com?subject=New Request from ${encodeURIComponent(formData.name)}&body=${encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\nOrganization: ${formData.organization || 'Not specified'}\n\nMessage:\n${formData.message}`
+    )}`;
+    
+    window.location.href = mailtoLink;
+    
+    // Show success message
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);
