@@ -1,4 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import sgMail from '@sendgrid/mail';
+
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 // Simple in-memory storage for submissions
 const submissions: any[] = [];
@@ -48,61 +54,49 @@ export default async function handler(
     // Log submission (for debugging)
     console.log('New submission received:', submission);
 
-    // Try to send emails via Resend if API key is provided
-    if (process.env.RESEND_API_KEY) {
+    // Send emails via SendGrid if API key is provided
+    if (process.env.SENDGRID_API_KEY) {
       try {
         // Send notification to info@datawaveconsultancy.com
-        const notificationResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'onboarding@resend.dev',
-            to: 'info@datawaveconsultancy.com',
-            subject: `New Contact Request from ${name}`,
-            html: `
-              <h2>New Contact Form Submission</h2>
-              <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-              <p><strong>Organization:</strong> ${escapeHtml(organization || 'Not specified')}</p>
-              <h3>Message:</h3>
-              <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
-              <hr>
-              <p><small>Submitted at: ${new Date().toLocaleString()}</small></p>
-            `,
-          }),
-        });
+        const notificationMsg = {
+          to: 'info@datawaveconsultancy.com',
+          from: 'noreply@datawaveconsultancy.com',
+          subject: `New Contact Request from ${name}`,
+          html: `
+            <h2>New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Organization:</strong> ${escapeHtml(organization || 'Not specified')}</p>
+            <h3>Message:</h3>
+            <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
+            <hr>
+            <p><small>Submitted at: ${new Date().toLocaleString()}</small></p>
+          `,
+        };
 
-        console.log('Notification email sent:', notificationResponse.status);
+        await sgMail.send(notificationMsg);
+        console.log('Notification email sent to info@datawaveconsultancy.com');
 
         // Send confirmation email to user
-        const confirmationResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'onboarding@resend.dev',
-            to: email,
-            subject: 'We received your request - Datawave Consultancy',
-            html: `
-              <p>Hi ${escapeHtml(name)},</p>
-              <p>Thank you for reaching out to Datawave Consultancy. We have received your request and will respond with clarity on scope, timelines, and next steps.</p>
-              <p>Best regards,<br>Datawave Team</p>
-            `,
-          }),
-        });
+        const confirmationMsg = {
+          to: email,
+          from: 'noreply@datawaveconsultancy.com',
+          subject: 'We received your request - Datawave Consultancy',
+          html: `
+            <p>Hi ${escapeHtml(name)},</p>
+            <p>Thank you for reaching out to Datawave Consultancy. We have received your request and will respond with clarity on scope, timelines, and next steps.</p>
+            <p>Best regards,<br>Datawave Team</p>
+          `,
+        };
 
-        console.log('Confirmation email sent:', confirmationResponse.status);
+        await sgMail.send(confirmationMsg);
+        console.log('Confirmation email sent to user');
       } catch (emailError) {
         console.error('Email sending error:', emailError);
         // Don't fail the submission if email fails
       }
     } else {
-      console.log('RESEND_API_KEY not configured. Submission stored but emails not sent.');
+      console.log('SENDGRID_API_KEY not configured. Submission stored but emails not sent.');
     }
 
     return res.status(200).json({
