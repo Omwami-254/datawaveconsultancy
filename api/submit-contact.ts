@@ -59,7 +59,7 @@ export default async function handler(
             Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'noreply@datawaveconsultancy.com',
+            from: 'onboarding@resend.dev',
             to: 'info@datawaveconsultancy.com',
             subject: `New Contact Request from ${name}`,
             html: `
@@ -85,7 +85,7 @@ export default async function handler(
             Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'noreply@datawaveconsultancy.com',
+            from: 'onboarding@resend.dev',
             to: email,
             subject: 'We received your request - Datawave Consultancy',
             html: `
